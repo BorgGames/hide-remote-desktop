@@ -4,7 +4,7 @@ use windows::core::PCSTR;
 use windows::Win32::System::LibraryLoader::{GetModuleHandleA, GetProcAddress};
 use windows::Win32::UI::WindowsAndMessaging::{SM_REMOTESESSION, SYSTEM_METRICS_INDEX};
 
-use crate::dbg::debug_writeln;
+use crate::dbg::{debug_writeln, trace};
 
 static_detour! {
     static GetSystemMetricsHook: extern "system" fn(SYSTEM_METRICS_INDEX) -> i32;
@@ -18,7 +18,9 @@ fn new_get_system_metrics(n_index: SYSTEM_METRICS_INDEX) -> i32 {
         GetSystemMetricsHook.call(n_index)
     };
 
-    debug_writeln(&format!("GetSystemMetrics({:#x}) -> {}\n", n_index.0, result));
+    if trace() {
+        debug_writeln(&format!("GetSystemMetrics({:#x}) -> {}\n", n_index.0, result));
+    }
     result
 }
 
